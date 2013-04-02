@@ -5,18 +5,18 @@
 \title{Visualize cluster's molecular entropy by violin plot}
 
 \description{
-This function first calculates the entopy of each sample in the given partition, and make a violin plot for each cluster. If clusters are different in term of their molecular profiles, then one may expect desnity differences in violin plots.
+This function first calculates the entopy of each sample in the given partition, and make a violin plot for each cluster. If clusters are different in term of their molecular profiles, then one may expect density differences in the violin plot.
 }
 
 \usage{
-EnvioPlot(dat, method = "knn", x, horizontal = FALSE, 
+EnvioPlot(X, method = "knn", parti, horizontal = FALSE, 
                col = NULL, names = NULL, ...)
 }
 
 \arguments{
-  \item{dat}{An object of class \code{\link{ExpressionSet}} or data matrix from which partition is obtained. Columns are assumed to represent samples, and rows represent sample's features. Missing values are allowed.}
+  \item{X}{An object of class \code{\link{ExpressionSet}} or data matrix from which partition is obtained. Columns are assumed to represent samples, and rows represent sample's features. Missing values are allowed.}
   \item{method}{Type of method to calculate sample's molecular entropy. Either \emph{knn} or \emph{normal}.}
-  \item{x}{A partition for which violin plot to be made.}
+  \item{parti}{A partition for which violin plot to be made.}
   \item{horizontal}{Should boxes are organized horizontally? default is FALSE.}
   \item{col}{A vector of colors for each cluster. Should be equal the number of clusters in \emph{x}.}
   \item{names}{A vector of labels for each cluster.}
@@ -45,5 +45,5 @@ Adler,D. (2005). vioplot: A violin plot is a combination of a box plot and a ker
 data(BullingerLeukemia)
 em <- BullingerLeukemia[["em"]]
 cl <- cutree(hclust(as.dist(1 - cor(em[, 1:60])), method = "ward"), k = 2)
-result <- EnvioPlot(dat = em[, 1:60], x = cl)
+result <- EnvioPlot(X = em[, 1:60], parti = cl)
 }

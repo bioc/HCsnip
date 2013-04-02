@@ -19,11 +19,11 @@ HCsnipper(X, hc = NULL, dis = NULL, dis.method = "cor", link.method = "ward",
   
   \item{dis}{A square distance matrix or object class of \code{\link{dist}} from which HC tree to be derived. This is an optional argument, if given \emph{X} will be ignored.}
 
-  \item{dis.method}{The distance measure to be used. This must be one of methods acceptable for \code{\link{dist}} function or the Pearson correlation (default).}
+  \item{dis.method}{The distance measure to be used. This must be one of the methods acceptable for \code{\link{dist}} function or the Pearson correlation 'cor' (default).}
 
   \item{link.method}{The agglomeration method to be used. This should be one of "ward" (default), "single", "complete", "average", "mcquitty", "median" or "centroid".}
 
-  \item{minclus}{The minimum number of samples allowed to form a cluster. This parameter is inversely proportional to the number of partitions returned. e.g. large values returns small number clusters, and vice versa.}
+  \item{minclus}{The minimum number of samples allowed to form a cluster. This parameter is inversely proportional to the number of partitions returned. e.g. large values returns less number clusters, and vice versa.}
 
   \item{maxmiss}{Maximum percentage of missing values per row in \emph{X}}
   
@@ -52,7 +52,7 @@ This function returns a list object contains following objects:
 }
 
 \references{
-Obulkasim,A. et al., (2013). "Semi-supervised adaptive-height snipping of the Hierarchical Clustering tree, with application to genomic data", submitted.
+Obulkasim,A. et al., (2013). "Semi-supervised adaptive-height snipping of the Hierarchical Clustering tree", submitted.
 
 Troyanskaya,O. et al., (2001). "Missing value estimation methods for DNA microarrays". \emph{Bioinformatics}, 17, 520-525.
 }

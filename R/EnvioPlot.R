@@ -1,13 +1,13 @@
-EnvioPlot <- function(dat, method = "knn", x,
+EnvioPlot <- function(X, method = "knn", parti,
                horizontal = FALSE, col = NULL, names = NULL, ...)
 {
-    if (class(dat) == "ExpressionSet" | class(dat) == "eSet") {
-       dat <- exprs(dat)
+    if (class(X) == "ExpressionSet" | class(X) == "eSet") {
+       X <- exprs(X)
     }
-    if (any(is.na(dat))) {
-       dat <- .myImpute(dat, maxmiss = 30)
+    if (any(is.na(X))) {
+       X <- .myImpute(X, maxmiss = 30)
     }
-    n <- length(unique(x))
+    n <- length(unique(parti))
     at <- 1:n
     if (!is.null(col)) {
        if (length(col) != n)
@@ -15,7 +15,7 @@ EnvioPlot <- function(dat, method = "knn", x,
     } else {
        col <- 2:(n+1)
     }
-    H <- hdEntropy(t(dat), method = method, ...)
+    H <- hdEntropy(t(X), method = method, ...)
     upper <- vector(mode = "numeric", length = n)
     lower <- vector(mode = "numeric", length = n)
     q1 <- vector(mode = "numeric", length = n)
@@ -25,7 +25,7 @@ EnvioPlot <- function(dat, method = "knn", x,
     height <- vector(mode = "list", length = n)
     baserange <- c(Inf, -Inf)
     args <- list(display = "none")
-    datas <- lapply(sort(unique(x)), function(i) H[x == i])
+    datas <- lapply(sort(unique(parti)), function(i) H[parti == i])
     for (i in 1:n) {
         data <- datas[[i]]
         data.min <- min(data)
@@ -54,7 +54,7 @@ EnvioPlot <- function(dat, method = "knn", x,
        xlim <- range(at) + min(diff(at))/2 * c(-1, 1)
     }
     if (is.null(names)) {
-        label <- paste("cluster", sort(unique(x)), sep="")
+        label <- paste("cluster", sort(unique(parti)), sep="")
     } else {
         label <- names
     }

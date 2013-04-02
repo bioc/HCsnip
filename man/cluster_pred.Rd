@@ -12,7 +12,7 @@ cluster_pred(X, partition, surv.time = NULL, status = NULL, te.index, minclus = 
 }
 
 \arguments{
-  \item{X}{An object of class \code{\link{ExpressionSet}} or data matrix in which columns are assumed to represent the samples, and rows represents the sample's features. Missing values are allowed. \emph{X} must include the data set from which \emph{partition} is obtained and the data set of test samples.}
+  \item{X}{An object of class \code{\link{ExpressionSet}} or data matrix in which columns are assumed to represent the samples, and rows represents the sample's features. \emph{X} can also be a square distance matrix or object cass of \code{\link{dist}}. It must include the data set from which \emph{partition} is obtained and the data set of test samples.}
   
   \item{partition}{A numeric vector contains the non-overlapping cluster labels.}
   
@@ -28,7 +28,7 @@ cluster_pred(X, partition, surv.time = NULL, status = NULL, te.index, minclus = 
   
   \item{te.status}{An optional vector contains survival status of patients in the test set. If supplied with \emph{te.surv.time}, the logrank test \emph{p-value} is calculated for the test set.}
   
-  \item{method}{Type of methods to use in assigning test samples to one of the clusters in the partition. Must be either Ward distance \emph{ward} or Harrel's concordance index \emph{conc} (default).}
+  \item{method}{Type of methods to use in assigning test samples to one of the clusters in the partition. Must be either Ward distance 'ward' or Harrel's concordance index 'conc' (default).}
 
   \item{maxmiss}{Maximum percentage of missing values per row in \emph{X}}
   
@@ -63,7 +63,7 @@ Before selecting either one of the options, we recommend user to check the corre
 }
 
 \references{
-Obulkasim,A. et al., (2013). "Semi-supervised adaptive-height snipping of the Hierarchical Clustering tree, with application to genomic data", submitted.
+Obulkasim,A. et al., (2013). "Semi-supervised adaptive-height snipping of the Hierarchical Clustering tree", submitted.
 
 Harrel,E.F. et al., (1982). "Evaluating the yield of medical tests", \emph{JAMA}, 247, 2543-2546.
 

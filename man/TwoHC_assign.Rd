@@ -2,7 +2,7 @@
 \alias{TwoHC_assign}
 %- Also NEED an '\alias' for EACH other topic documented here.
 
-\title{Function to assign new samples to one of the two given hierarchical clustering (HC) trees in a semi-supervised way}
+\title{Function to assign new samples to one of the two given hierarchical clustering trees in a semi-supervised way}
 
 \description{For given molecular data sets from two non-overlapping groups of patients, this functions constructs two independent HC trees and assigns new samples to one of them in semi-supervised way. See details.}
 
@@ -40,19 +40,19 @@ TwoHC_assign(X, index1, index2, new.X, dis.method = "cor", link.method = "ward",
 }
 
 \details{
-Say molecular profiles of two groups patients (without overlap) treated with two different drugs or the same drugs in different combinations are available. Besides that, their follow-up information are also given. When a new patient comes in, question will be to which group this patient should be assigned so that he/she will benefit most by the type of treatment this group received. 
+Say molecular profiles of two groups patients (without overlap) treated with two different drugs or the same drugs in different combinations are available. Besides that, their follow-up information are also given. When a new patient comes in (for which only molecular profiles are available), question will be to which group this patient should be assigned so that he/she will benefit most by the type of treatment this group received. 
 
-This function is designed for this problem. it works as follows: first, two independent HC trees will be derived from given data; second, partitions are extracted and the optimal partition is selected from each HC tree, separately; third, new patient's molecular profile (presumed that new patient's follow-up and group label are missing) is compared with each cluster in each optimal partition to calculate average similarity and identify two most similar clusters (competing clusters); finally, new sample is assigned to one of the two competing clusters which has better survival.
+This function is designed for this problem. it works as follows: first, two independent HC trees will be derived from given data; second, partitions are extracted and the optimal partition is selected from each HC tree, separately; third, new patient's molecular profile is compared with each cluster in each optimal partition to calculate average similarity and identify two most similar clusters (competing clusters) fromt the two HC trees; finally, new sample is assigned to one of the two competing clusters which has better overall survival.
 
 }
 
 \value{A list object contains following components:
   \item{hc1}{HC tree derived from the data corresponds to the first group.}
   \item{hc2}{HC tree derived from the data corresponds to the second group.}
-  \item{partitions.hc1}{A matrix includes the partition extracted from \emph{hc1}. Rows represent partitions and columns represent samples.}
-  \item{partitions.hc2}{A matrix includes the partition extracted from \emph{hc2}. Rows represent partitions and columns represent samples.}
-  \item{best.hc1}{Optimal partition selected from \emph{partitions.hc1}} 
-  \item{best.hc2}{Optimal partition selected from \emph{partitions.hc2}} 
+  \item{partitions.hc1}{A matrix includes partitions extracted from \emph{hc1}. Rows represent partitions and columns represent samples.}
+  \item{partitions.hc2}{A matrix includes partitions extracted from \emph{hc2}. Rows represent partitions and columns represent samples.}
+  \item{best.hc1}{Optimal partition found on the \emph{hc1}} 
+  \item{best.hc2}{Optimal partition found on the \emph{hc2}} 
   \item{score.hc1}{A matrix with two columns. The first column contains the quality scores of \emph{partitions.hc1} calculated using the follow-up data. The second column contains the quality scores of \emph{partition.hc1} calculated by using \emph{X}.}
   \item{score.hc2}{The same as \emph{score.hc1}, but for \emph{partitions.hc2}.}
   \item{Assign}{A matrix with three columns. The first column contains the indices of HC trees to which a test sample was assigned. The second column contains the indices of clusters in \emph{best.hc1} to which a test sample was most similar. The third column contains the indices of clusters in \emph{best.hc2} to which a test sample was most similar.}
@@ -75,7 +75,7 @@ Obulkasim,A. et al., (2011). "Stepwise classification of cancer samples using cl
 
 Troyanskaya,O. et al., (2001). "Missing value estimation methods for DNA microarrays". \emph{Bioinformatics}, 17, 520-525.
 
-Obulkasim,A. et al., (2013). "Semi-supervised adaptive-height snipping of the Hierarchical Clustering tree, with application to genomic data", submitted.
+Obulkasim,A. et al., (2013). "Semi-supervised adaptive-height snipping of the Hierarchical Clustering tree", submitted.
 }
 
 \author{Askar Obulkasim}

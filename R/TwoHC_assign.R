@@ -13,7 +13,7 @@ function(X, index1, index2, new.X, dis.method = "cor", link.method = "ward", min
    H.1 <- res1$hc
    cl.1 <- res1$partitions
    L1.1 <- apply(cl.1, 1, function(x) surv_measure(x, surv.time[index1] , status[index1], method1))
-   L2.1 <- apply(cl.1, 1, function(x) measure(x = x, dis = dis.1, type = method2))
+   L2.1 <- apply(cl.1, 1, function(x) measure(parti = x, dis = dis.1, type = method2))
    ord <- order(L1.1, decreasing = TRUE)
    ranksum <- (1:length(ord)) + unlist(lapply(ord, function(x) which(x == order(L2.1, decreasing = TRUE))))	     
    best1 <- cl.1[ord[which.min(ranksum)], ]
@@ -23,7 +23,7 @@ function(X, index1, index2, new.X, dis.method = "cor", link.method = "ward", min
    H.2 <- res2$hc
    cl.2 <- res2$partitions
    L1.2 <- apply(cl.2, 1, function(x) surv_measure(x, surv.time[index2] , status[index2], method1))
-   L2.2 <- apply(cl.2, 1, function(x) measure(x = x, dis = dis.2, type = method2))
+   L2.2 <- apply(cl.2, 1, function(x) measure(parti = x, dis = dis.2, type = method2))
    ord <- order(L1.2, decreasing = TRUE)
    ranksum <- (1:length(ord)) + unlist(lapply(ord, function(x) which(x == order(L2.2, decreasing = TRUE))))	      
    best2 <- cl.2[ord[which.min(ranksum)], ]

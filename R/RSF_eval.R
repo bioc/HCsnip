@@ -27,8 +27,8 @@ function(partition, surv.time, status, te.partition, te.surv.time, te.status, ..
    colnames(fea.tr) <- colnames(fea.te) <- paste("cluster", 1:ncol(fea.tr), sep = "")
    tr <- data.frame(st = surv.time, event = status, fea.tr)
    te <- data.frame(st = te.surv.time, event = te.status, fea.te)   
-   rf <- rsf(Surv(st, event)~., data = tr, ...)
+   rf <- rfsrc(Surv(st, event)~., data = tr, ...)
 
- return(randomSurvivalForest::predict.rsf(rf, te)$err.rate)
+ return(predict.rfsrc(rf, te)$err.rate)
 
 }

@@ -6,15 +6,15 @@ Cluster quality evaluation using follow-up data
 }
 
 \description{
-This function evaluates overall quality of a given partition using follow-up data. Partition (clustering) is composed of non-overlapping clusters.
+Function to evaluate the overall quality of a given partition using follow-up data. A partition (clustering) is composed of non-overlapping clusters.
 }
 
 \usage{
-surv_measure(x, surv.time, status, method = "BIC")
+surv_measure(parti, surv.time, status, method = "BIC")
 }
 
 \arguments{
-  \item{x}{A partition to be evaluated. }
+  \item{parti}{A partition to be evaluated. }
   
   \item{surv.time}{A numeric vector contains follow-up time of patient's in \emph{x} }
   
@@ -35,7 +35,7 @@ Liang,H. and Zou,G.H. (2008). "Improved AIC selection strategy for survival anal
 
 Volinsky,T.C. and Raftery,A.E. (2000). "Baysian information criteria for censored survival models", \emph{Biometrics}, 56, 256-262.
 
-Obulkasim,A. et al., (2013). "Semi-supervised adaptive-height snipping of the Hierarchical Clustering tree, with application to genomic data", submitted.
+Obulkasim,A. et al., (2013). "Semi-supervised adaptive-height snipping of the Hierarchical Clustering tree", submitted.
 }
 
 \author{Askar Obulkasim}

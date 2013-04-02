@@ -25,7 +25,7 @@ RSF_eval(partition, surv.time, status, te.partition, te.surv.time, te.status, ..
   
   \item{te.status}{A binary vector contains survival status of patients in \emph{te.partition}, normally 0=alive, 1=dead.}
   
-  \item{\dots}{Arguments for \code{\link{rsf}} from the \pkg{randomSurvivalForest} package}  
+  \item{\dots}{Arguments for \code{\link{rfsrc}} from the \pkg{randomForestSRC} package}  
 }
 
 
@@ -34,7 +34,7 @@ RSF_eval(partition, surv.time, status, te.partition, te.surv.time, te.status, ..
 \references{
 Ishwaran,H. et al., (2008). "Random survival forest", \emph{Ann. App. Statist.}, 2, 841-860.
 
-Obulkasim,A. et al., (2013). "Semi-supervised adaptive-height snipping of the Hierarchical Clustering tree, with application to genomic data", submitted.
+Obulkasim,A. et al., (2013). "Semi-supervised adaptive-height snipping of the Hierarchical Clustering tree", submitted.
 }
 
 \author{
@@ -43,7 +43,7 @@ Askar Obulkasim
 
 
 \seealso{
-\code{\link{rsf}}
+\code{\link{rfsrc}}
 }
 
 \examples{

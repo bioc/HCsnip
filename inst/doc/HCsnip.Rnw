@@ -8,6 +8,7 @@
 \usepackage{hyperref}
 \usepackage{Sweave}
 \usepackage{graphicx}
+\usepackage{amsmath}
 % \SweaveOpts{engine=R}
 
 %\documentclass{article}
@@ -32,7 +33,7 @@
 
 
 
-\title{Vignette for \textbf{HCsnip}: An R Package for semi-supervised adaptive-height snipping of the Hierarchical Clustering (HC) tree, with application to genomic data}
+\title{Vignette for \textbf{HCsnip}: An R Package for semi-supervised adaptive-height snipping of the Hierarchical Clustering tree}
 \author{ {\textbf{Askar Obulkasim} }
 \vspace{4pt}
 \\
@@ -57,7 +58,7 @@
 
 
 \section*{Introduction}
-This vignette shows the use of {\tt HCsnip} package for extracting clusters from the HC tree in semi-supervised way. Rather than cutting the HC tree at a fixed highest (as existing methods do), it snips the tree at variable heights to extract hidden clusters. Cluster extraction process uses both the data matrix from which HC tree is derived and the available follow-up information for cluster evaluation. Functions for testing the significance of extracted clusters are also given. If two HC trees are presented, which maybe corresponding to the two treatment groups, this package contain functions for optimally assigning new samples to one of the HC trees and testing the significance of group assignment.
+This vignette shows the use of {\tt HCsnip} package for extracting clusters from the Hierarchical Clustering (HC) tree in semi-supervised way. Rather than cutting the HC tree at a fixed highest (as existing methods do), it snips the tree at variable heights to extract hidden clusters. Cluster extraction process uses both the data matrix from which HC tree is derived and the available follow-up information for cluster evaluation. Functions for testing the significance of extracted clusters are also given. If two HC trees are presented, which maybe corresponding to the two treatment groups, this package contain functions for optimally assigning new samples to one of the HC trees and testing the significance of group assignment.
 
 The following features are discussed in detail: 
 \begin{itemize}
@@ -113,7 +114,7 @@ The code above loads a list object {\tt TcgaGBM} with following components
 
 
 
-\section{{\tt HCsnipper}: generate complete set of partitions from the HC tree \\ by snipping at variable heights}
+\section{{\tt HCsnipper}: extract complete set of partitions from the HC tree \\ by snipping at variable heights}
 
 For a given HC tree, this function snips it at all possible places to extract complete set of partitions (clusterings) (each one composed of non-overlapping clusters) under the following conditions: 
 
@@ -133,30 +134,22 @@ table(apply(cl[["partitions"]], 1, function(x) length(unique(x))))
 @
 
   
-%\newcommand{\fg}[3]{\begin{figure}[htbp]%
-%        \leavevmode%
-%        \centerline{\includegraphics{BIC-GK(Bullinger).jpg}}%
-%        \caption{The best partitions found by the piecewise cut(red rectangle) and the straight line cut(blue broken line). The number in each leaf node denotes the survival time (day) and the event indicator, respectively}%
-%        \label{fig:01}%
-%        \end{figure}}
-%
-%As we observe from Figure 1, extracted clusters are impossible to obtain by traditional straight line cutting approach.
-        
+       
 
-\section{{\tt measure}: assessing overall parition (clustering) quality}
+\section{{\tt measure}: overall partition (clustering) quality assessment using molecular data}
 This function evaluates clusters in a given partition by user defined evaluation criteria. Numerous cluster quality measuring criteria have been proposed. In this package, we implemented few well known ones. Except for the 'c.index' and the in group proportion 'IGP', rest of the criteria come from the function \emph{cluster.stats} in \emph{fpc} package. For latter one, please check the returned arguments of the \emph{cluster.stats} function before you decide which criteria to choose. Note that, the value returned by different criteria has different meaning. For example, the larger the Goodman and Kruskal index (g2) the better. For the index G3 (g3), the smaller the better.
 
 <<chunk4, eval=TRUE, echo=TRUE, results=hide>>=
 data(BullingerLeukemia)
 em <- BullingerLeukemia[["em"]]
 cl <- HCsnipper(em[, 1:60], minclus = 5)
-m <- apply(cl[["partitions"]], 1, function(x) measure(x = x, 
+m <- apply(cl[["partitions"]], 1, function(x) measure(parti = x, 
                         dis = 1 - cor(em[, 1:60]))) 
 @
 
 
 
-\section{{\tt surv\_measure}: assessing overall partition (clustering) quality using follow-up data}
+\section{{\tt surv\_measure}: overall partition (clustering) quality assessment using patients follow-up data}
 This function evaluates a given partition using either \emph{AIC} or \emph{BIC} criteria. In both settings, It fits a Cox model using follow-up data as response and cluster labels in the partition as covariate.  The likelihood from the fitted model further used to calculate the modified \emph{AIC} (Liang and Zou, 2008) or \emph{BIC} (Volinsky and Raftery, 2000). See references for more details. Note that, for convenience in later usage, returned value is multiplied by -1 so that large value denotes good quality partition.
 
 <<chunk5, eval=TRUE, echo=TRUE, results=hide>>=
@@ -170,7 +163,7 @@ bic <- apply(cl[["partitions"]], 1, function(x) surv_measure(x,
 @
 
 
-\section{{\tt perm\_test}: optimal clustering selection and significance testing}
+\section{{\tt perm\_test}: optimal partition selection and significance testing}
 For a given set of partitions (each partition is composed of non-overlapping clusters), this function uses two types of data to evaluate each partition and select the optimal one which has the highest rank in terms of both data type (presumed that \emph{score1} and \emph{score2} were from two different data source). Permutation approach used to calculate the corrected p-value of the selected partition.
 
 When studying association of cluster membership with clinical follow-up, such as survival data, we cannot use the standard testing procedures when our semi-supervised approach has been applied: we would use the follow-up data twice and the resulting $p$-value is likely to be too small. We avoid this bias by also applying the semi-supervised cluster construction under the null-hypothesis. This null-hypothesis is simply the absence of association between the data type from which \emph{score2} is calculated and the follow-up. Then, our cluster construction in combination with a suitable test statistic is designed to detect associations that can be represented by groups of samples. We adapt the $p$-value computation as follows.
@@ -196,14 +189,14 @@ em <- BullingerLeukemia[["em"]]
 st <- BullingerLeukemia[["surv.time"]]
 event <- BullingerLeukemia[["status"]]
 cl <- HCsnipper(em[, 1:60], min = 5)
-m <- apply(cl[["partitions"]], 1, function(x) measure(x = x, dis = 1-cor(em[, 1:60]))) 
+m <- apply(cl[["partitions"]], 1, function(x) measure(parti = x, dis = 1-cor(em[, 1:60]))) 
 s <- apply(cl[["partitions"]], 1, function(x) surv_measure(x, st[1:60], event[1:60]))
 result <- perm_test(cl[["partitions"]], st[1:60], event[1:60], score1 = s, score2 = m, 
                        nperm = 10) 
 @
 
 
-\section{{\tt EnvioPlot}: cluster visualization with violin plot}
+\section{{\tt EnvioPlot}: cluster visualization using samples molecular entropy}
 To visually inspect the differences between clusters in terms of sample's molecular profiles, we turn to sample's molecular entropy proposed by van Wieringen,N.W. and van der Vaart,W.A. (2010). They showed that entropy can be used to quantify the overall expression pattern of a cancer sample. High entropy corresponds to high overall expression of genes in the sample. 
 
 This function first calculates the entropy for each sample in the given partition, and makes a violin plot for each cluster. If clusters are different in term of their molecular profiles, then one may expect different shaped violin boxes. 
@@ -215,16 +208,16 @@ em <- TcgaGBM[["em"]]
 drugs <- TcgaGBM[["drugs"]]
 cl <- rep(1, ncol(em))
 cl[drugs == "Temodar"] <- 2
-H <- EnvioPlot(dat = em, x = cl, names = c("Avastin", "Temodar"), 
+H <- EnvioPlot(X = em, parti = cl, names = c("Avastin", "Temodar"), 
              col = c("blue", "red"))
 @
 \end{center}
 
 
-\section{{\tt cluster\_pred}: clustering on new set}
+\section{{\tt cluster\_pred}: clustering on the new set}
 For a given partition (composed of non-overlapping clusters), this function assigns new samples to one of the clusters in the partition. User has two options to assign test set to one of the clusters in the partition. One option is to use the Ward distance. Specifically, an average distance is calculated between a test sample and each cluster in the partition, separately. The test sample is assigned to a cluster for which average distance is the smallest. Follow-up information is not needed for this option. 
 
-Second option is to use the Harrel's concordance index (Harrel \textit{et al}., 1982). For this option both data matrix and follow-up information of samples in the partition are required. Data matrix is used to find the pseudo nearest neighbours (PNN)  (Obulkasim \textit{et al}., 2011) of a test sample, and follow-up information are used to check how much PNN's follow-up info is concordant with samples follow-up in each cluster. The test sample is assigned to a cluster for which average concordance value is the largest. Before selecting either one of the options, we recommend user to check the correlation between the data matrix and follow-up (e.g. by global test). If the correlation is relatively large, we recommend to use \emph{conc} option, and vice versa.
+Second option is to use the Harrel's concordance index (Harrel \textit{et al}., 1982). For this option both data matrix and follow-up information of samples in the partition are required. Data matrix is used to find the pseudo nearest neighbours (PNN) (Obulkasim \textit{et al}., 2011) of a test sample, and follow-up information are used to check how much PNN's follow-up info is concordant with samples follow-up in each cluster. The test sample is assigned to a cluster for which average concordance value is the largest. Before selecting either one of the options, we recommend user to check the correlation between the data matrix and follow-up (e.g. by global test). If the correlation is relatively large, we recommend to use \emph{conc} option, and vice versa.
 
 <<chunk8, fig=FALSE, eval=TRUE, echo=TRUE, results=hide>>=
 data(BullingerLeukemia)
@@ -236,7 +229,7 @@ par(mfrow = c(1, 2))
 result <- cluster_pred(X = em[, 1:100], partition = cl[["partitions"]][1, ], 
               surv.time = st[1:60], status = event[1:60], te.index = 61:100,
               te.surv.time = st[61:100], te.status = event[61:100], plot.it =TRUE)
-H <- EnvioPlot(dat = em[,61:100], x = result[["St"]][, 2])              
+H <- EnvioPlot(X = em[,61:100], parti = result[["St"]][, 2])              
 @
 
 \begin{figure}[h]
@@ -249,7 +242,7 @@ H <- EnvioPlot(dat = em[,61:100], x = result[["St"]][, 2])
 
 
 
-\section{{\tt RSF\_eval}: calculate error rate for the clustering on the new set of samples by Random Survival Forest}
+\section{{\tt RSF\_eval}: evaluate the clustering on the new set by the Random Survival Forest}
 This function constructs survival forest (shwaran \textit{et~al}., 2008) using training sample's follow-up as response and cluster labels as covariates. Constructed forest is used to calculate cumulative hazard function (CHF) for each sample in the new set based on its cluster label. CHFs are compared with new sample's actual survival time to calculate the error rate. Error rate is 1 - \emph{C-index} (Harrel's concordance index, 1982) . Error rates are between 0 and 1, with 0.5 representing the benchmark value of a procedure based random guessing. A value of 0 is perfect.
 
 <<chunk9, eval=TRUE, echo=TRUE, results=hide>>=
@@ -287,28 +280,18 @@ result <- TwoHC_assign(X = em[ ,c(id1[1:50], id2[1:50])], index1 = 1:50,
                  
                    
 \section{{\tt TwoHC\_perm}: assess the quality of group assignment by \\ {\tt TwoHC\_assign}}
-Significance of group assignment for each patient is calculated as follows: select a patient from the test set, examine the previously found best partition in each HC tree and identify the clusters to which this sample is most similar. Say these two clusters are \emph{cluster1} and \emph{cluster2} (winner cluster, selected patient was assigned to this cluster before) of size $n_1$ and $n_2$, respectively. Create a binary vector (call it $x$) of size $n_1$ + $n_2$ contains $n_2$ ones and $n_1$ zeros. Construct a Cox model using follow-up information of samples in \emph{cluster1} and \emph{cluster2} as response, and \emph{x} as covariate. The absolute value of coefficient ($\beta_{obs}$) in this model expresses follow-up differences in two clusters. Indirectly may also represent the goodness of group assign for the selected patient. If the group assignment for this patient is not meaningful, then we expect this coefficient close to zero. Significance of coefficient is examined by comparing it with coefficients from the null model. The null distribution (which assumed to be uniformly distributed) in this setting can be generated by randomly permuting the patients follow-up information in $x$. 
+Significance of group assignment for each patient is calculated as follows: select a patient from the test set, examine the previously found best partition in each HC tree and identify the clusters to which this sample is most similar. Say these two clusters are $\text{cluster}_1$ and $\text{cluster}_2$ of size $n_1$ and $n_2$, respectively. Create a binary vector (call it $x$) of size $n_1$ + $n_2$ contains $n_2$ ones and $n_1$ zeros. Construct a Cox model using follow-up information of samples in $\text{cluster}_1$ and $\text{cluster}_2$ as response, and $x$ as covariate. The absolute value of the estimated group parameter ($\hat\beta^i_{\text{obs}}$) in the Cox model that compares the survival times of the other patients in the two competing clusters expresses the predicted gain in survival from the assignment by {\tt TwoHC\_assign} with respect to random. The $\beta^i_{\text{obs}}$ will be transformed to $r^i_{\text{obs}} = \exp\left(-|\hat\beta^i_{\text{obs}}|\right)$, which quantifies the gain in relative risk in the Cox model. The problem is that this is biased, because {\tt TwoHC\_assign} already used $\hat\beta^i_{\text{obs}}$. Hence, even when the two groups would be equally good for the molecular profiles in the two competing clusters, we obtain $r^i_{\text{obs}} < 1$. To correct for this bias this function uses a permutation argument. For each new patient it applies \emph{nperm} permutations of the survival data among the two competing clusters. As above it computes $r^j_{\text{perm}}$ for each permutation $j$, which contains the same bias as $r^i_{\text{obs}}$. The relative risk-ratio of the $i^{th}$ new patient is calculated as:
 
-This function produces two outputs to show goodness of group assignments on the test,
- \begin{itemize}
-    \item Rank of each observed coefficient among the coefficients from the null model. Observed coefficient should rank high in order to be significant. 
-    \item Relative risk ratio. In Cox model relative risk (exponentiated coefficients) multiplied by baseline hazard to obtain complete hazard. Just like the hazard ratio in the Cox model, here we calculate the relative risk ratio for the $i^{th}$ test sample in following way:
+$${rr}^i_{\text{obs}} = \frac{\exp\left(-|\hat\beta^i_{\text{obs}}|\right)}{Z_i},$$
 
-             
-$$risk\_ratio^i_{obs} = \frac{exp(-\left |\hat\beta^{i}_{obs} \right |)}{Z^i}$$
+\noindent where
+$$Z_i = median\left(r^1_{\text{perm}}, r^2_{\text{perm}}, ... , r^{nperm}_{\text{perm}}\right).$$
 
-where $$Z^i = \exp\left(-median \left(\left|\hat\beta^{i1}_{perm}\right|, \left|\hat\beta^{i2}_{perm}\right|, \dots, \left|\hat\beta^{in}_{perm}\right| \right)\right), \hspace{5pt} n = nperm$$
+${rr}^i_{\text{obs}}$ quantifies the biased-corrected reduction in relative risk. Function defines a test statistic of the new samples:
+$$T_{\text{obs}} = \frac{\frac{1}{n}\sum_{i=1}^n\log\left(rr^i_{\text{obs}}\right)}{\text{stdev}\left(\log\left(rr^1_{\text{obs}}, rr^2_{\text{obs}}, \ldots,rr^n_{\text{obs}}\right)\right)},$$
 
-The relative risk ratio expresses how much risk is reduced due to $x$ compared to random group assignments. 
-  \item $p$-value of overall group assignment. Aforementioned 2 outputs express the goodness of group assignment for each test sample. We combine them into one $p$-value in following way:
-  
-  $$obs_{rr} = \exp \left(\log \left(\frac{\sum\limits_{i=1}^{m} risk\_ratio^i_{obs}}{m}\right)\right), \hspace{5pt} m = \#sample$$
-  For $j = 1$, \ldots, $B = nperm$:
-  $$risk\_ratio^j_{perm} = \frac{\exp \left(-\left |\hat\beta^{ji}_{perm} \right |\right)}{Z_i}$$
- $$perm^j_{rr} = \exp \left(\log \left(\frac{\sum\limits_{i=1}^{m} risk\_ratio^{ji}_{perm}}{m}\right)\right)$$
-Finally, compute the $p$-value of interest: $p = P(obs_{rr} \geq perm^j_{rr}) = (\#j: obs_{rr} \geq perm^j_{rr})/B$.
+\noindent which is just the scaled version of the log-geometric mean (suited well for the ratio scaled data). The permuted version of ${rr}^j_{\text{perm}}$ and $T^j_{\text{perm}}$ is defined analogously. Finally, compute the $p$-value of interest: $p = P(T_{\text{obs}} \geq T^j_{\text{perm}}) = (\#j: T_{\text{obs}} \geq T^j_{\text{perm}})/\text{nperm}$.
 
-\end{itemize}
 
 <<chunk11, eval=FALSE, echo=TRUE, results=hide>>=
 data(TcgaGBM)
@@ -321,13 +304,13 @@ twoHC <- TwoHC_assign(X = em[ ,c(id1[1:50], id2[1:50])], index1 = 1:50,
                   index2 = 51:100, new.X = em[, c(id1[51:60], id2[51:60])], 
                   minclus = 4, surv.time = st[c(id1[1:50], id2[1:50])], 
                   status = event[c(id1[1:50], id2[1:50])])  
-result <- TwoHC_perm(twoHC, nperm = 10)
+result <- TwoHC_perm(twoHC, nperm = 100)
 @
 
 \begin{figure}[h]
   \begin{center}
   \includegraphics[width=0.9 \textwidth]{Rank.pdf}
-  \caption{Distribution of observed coefficient ($\hat\beta_{obs}$) ranks . We set $nperm = 1000$. The tick colour bars denotes the 25,50,75 percentiles, respectively. }
+  \caption{Density of the observed coefficient ($\hat\beta_{obs}$) ranks from $n = 20$ samples. We used $nperm = 10000$ permutations. The tick colour bars denotes the 25,50,75 percentiles, respectively. }
   \label{fig:02}
   \end{center}
 \end{figure}
@@ -335,12 +318,11 @@ result <- TwoHC_perm(twoHC, nperm = 10)
 \begin{figure}[h]
   \begin{center}
   \includegraphics[width=0.9 \textwidth]{densityR.pdf}
-  \caption{The upper figure shows the relative risk distribution ($risk\_ratio_{obs}$).  The blue broken line (in both figures) corresponds to the geometric mean of  observed relative risk ratios ($obs_{rr}$). The lower figure shows the null distribution of geometric mean of relative risk ratios from permutation ($perm_{rr}$). The tick colour bars denotes the 25,50,75 percentiles, respectively. }
+  \caption{The left figure shows the density of the observed relative risk-ratios (${rr}_{\text{obs}}$). The right figure shows the distribution of the test statistics from the null model from permutation ($T_{\text{perm}}$). The tick colour bars denotes the 25,50,75 percentiles, respectively. }
   \label{fig:03}
   \end{center}
 \end{figure}
 
-We randomly selected 50 samples and used leave one out cross validation to predict each sample's group label by {\tt TwoHC\_assign}. Validity of assigned group labels are tested by {\tt TwoHC\_perm}. Analysis results are shown in Figure 2-3.
                    
                      
 %\bibliographystyle{apalike}
@@ -348,7 +330,7 @@ We randomly selected 50 samples and used leave one out cross validation to predi
 %\bibliographystyle{plain}
 \begin{thebibliography}{}
 
-\bibitem[Obulkasim \textit{et~al}., (2013)]{Obulkasim2013} Obulkasim,A. \textit{et~al}. (2013), Semi-supervised adaptive-height snipping of the Hierarchical Clustering (HC) tree, with application to genomic data, submitted.
+\bibitem[Obulkasim \textit{et~al}., (2013)]{Obulkasim2013} Obulkasim,A. \textit{et~al}. (2013), Semi-supervised adaptive-height snipping of the Hierarchical Clustering tree, submitted.
 
 \bibitem[Bullinger \textit{et~al}., 2004]{Bullinger2004} Bullinger,L. \textit{et~al}. (2004), Use of gene-expression profiling to identify prognostic subclasses in adult acute myeloid leukemia, {\it N Engl J Med.}, {\bf 350}, 1605-1616.
 
