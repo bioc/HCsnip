@@ -41,8 +41,9 @@ The last constraint guarantees that sniping does not change the HC tree structur
 }
 
 \value{
-This function returns a list object contains following objects:
+This function returns an object of list class contains following objects:
   \item{partitions}{a matrix in which rows represent partitions and columns represent samples.}
+  \item{id}{indices of the partitions in which minimum cluster size is equal or larger than \emph{minclus}.}
   \item{hc}{HC tree from which partitions are extracted.}
   \item{dat}{data matrix. If \emph{X} has missing values, this will be missing values imputed full data matrix.}
   \item{dis}{the distance matrix used}
@@ -64,10 +65,13 @@ Askar Obulkasim
 
 \examples{
 data(BullingerLeukemia)
-em <- BullingerLeukemia[["em"]]
-cl <- HCsnipper(em[, 1:60], minclus = 5)
-## To check returned partitions size
-table(apply(cl[["partitions"]], 1, function(x) length(unique(x))))  
+attach(BullingerLeukemia)
+H <- hclust(as.dist(1 - cor(em[, 1:30])), method = "ward")
+cl <- HCsnipper(em[, 1:30], minclus = 5)
+cl <- cl$partitions[cl$id, ][1, ]
+## Visualize a partition, for this package WGCNA is needed.
+#library(WGCNA)
+#plotDendroAndColors(H, cl, hang = -1, dendroLabels = FALSE)
 }
 
 

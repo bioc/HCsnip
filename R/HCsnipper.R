@@ -5,9 +5,6 @@ function(X, hc = NULL, dis = NULL, dis.method = "cor", link.method = "ward", min
   D <- NULL
   if (is.null(hc)) {
      if (is.null(dis)) {
-        if (class(X) == "ExpressionSet" | class(X) == "eSet") {
-           X <- exprs(X)
-        }
         if (any(is.na(X))) {
            X <- .myImpute(X, maxmiss, ...)
         }   	
@@ -91,26 +88,40 @@ function(X, hc = NULL, dis = NULL, dis.method = "cor", link.method = "ward", min
    for(i in 1:max(Mother)) {
       CUT <- c(CUT, list(which(p[i, ] == TRUE)))
    }
-   if (all(table(Mother) >= minclus)) {
-      cluster <- list()
-      for(m in 1:max(Mother)) {   
-         Ind <- CUT[[m]]
-         W <- Clus.index[Ind]
-         W <- W[order(sapply(W, function(x) length(x)))]
-         C <- c()
-         go <- TRUE
-         j <- 1
-         while(go & j <= (length(Ind) - 1)) {
-         	L <- mean(Merge[rev(Ind)[j:(j + 1)], 3])
-            cut <- as.vector(cutree(hc, h = L))
-            if (all(table(cut[Child[[m]]]) >= minclus)) {
-               C <- rbind(C , rep(0, length(Mother)))
-               C[nrow(C), Child[[m]]] <- cut[Child[[m]]]
-               j <- j + 1
-            } else {
-               go <- FALSE
+   cluster <- list()
+   for(m in 1:max(Mother)) {   
+      Ind <- CUT[[m]]
+      W <- Clus.index[Ind]
+      W <- W[order(sapply(W, function(x) length(x)))]
+      C <- c()
+      go <- TRUE
+      j <- 1
+      if (length(Child[[m]]) > 2) {
+         while(j <= (length(Ind) - 1)) {
+         	  L <- mean(Merge[rev(Ind)[j:(j + 1)], 3])
+              cut <- as.vector(cutree(hc, h = L))
+              C <- rbind(C, rep(0, length(Mother)))
+              C[nrow(C), Child[[m]]] <- cut[Child[[m]]]
+              j <- j + 1
+         }
+         cl <- c()
+         for(j in 1:nrow(C)) {
+         	if (any(table(C[j, ]) == 1)) {
+         	   singl <- as.numeric(names(which(table(C[j, ]) == 1)))
+         	   for(jj in 1:length(singl)) {
+         	      idx <- which(C[j, ] == singl[jj])	
+                  id <- which(sapply(W, function(x) (!any(idx %in% x) & !all(Child[[m]] %in% c(idx, x)))))
+                  for(jjj in id) {  
+                     if (length(unique(C[j, W[[jjj]]])) == 1) {
+                        cl <- rbind(cl, C[j, ])
+               	        cl[nrow(cl), idx] <- C[j, W[[jjj]]][1]
+                     }
+                  }
+               }
             }
          }
+         C <- rbind(C, cl)        	  
+         C <- unique(C)
          for(i in 1:length(W)) {
             cl <- c()
             for(j in 1:(length(Ind) - 1)) {
@@ -129,40 +140,44 @@ function(X, hc = NULL, dis = NULL, dis.method = "cor", link.method = "ward", min
             }
             cl[,  Child[[seq(max(Mother))[-m]]]] <- 0
             cl <- unique(cl)
-            if (length(nrow(cl)) != 0) {
-               del <- apply(cl, 1, function(x) any(table(x[Child[[m]]]) < minclus))
-            } else {
-               del <- any(table(cl[Child[[m]]]) < minclus)
-            }
-            if (!all(del) & length(del) > 1) {
-               C <- rbind(C, cl[-which(del), ])
-            } else if (!all(del) & length(del) == 1) {
-               C <- rbind(C, cl)
+            C <- rbind(C, cl)
+         }
+         C <- unique(C)
+         no <- c()
+         for(i in 1:nrow(C)) {
+   	      a <- sapply(W[which(sapply(W, length) == 2)], function(x) length(unique(C[i, x])))
+            if (any(a != 1)) {
+               no <- c(no, i)
             }
          }
+         C <- C[-no, ] 
          if (length(nrow(C)) != 0) {
             cluster <- c(cluster, list(unique(C)))
          } else {
             cluster <- c(cluster, list(C))
          }
+      } else {
+         a <- rep(0, length(Mother))
+         a[Child[[m]]] <- 1
+         a <- rbind(a, a)
+         cluster <- c(cluster, list(a))
       }
-      cluster <- lapply(1:max(Mother), function(x) rbind(cluster[[x]], Mother))
-      cluster <- CrossOver(cluster, Mother, Child)
-      for(y in 1:nrow(cluster)) {
-         U <- unique(cluster[y, ])
-         b <- cluster[y, ]
-         for(u in 1:length(U)) {
-            cluster[y, which(b == U[u])] <- u
-         }
+   }   
+   cluster <- lapply(1:max(Mother), function(x) rbind(cluster[[x]], Mother))
+   cluster <- CrossOver(cluster, Mother, Child)
+   for(y in 1:nrow(cluster)) {
+      U <- unique(cluster[y, ])
+      b <- cluster[y, ]
+      for(u in 1:length(U)) {
+         cluster[y, which(b == U[u])] <- u
       }
-   } else {
-      stop("Minimum cluster size is set too high!")
-   } 
-   cluster <- unique(cluster)
+   }   
+   cluster <- unique(cluster)  	 
+   idx <- which(apply(cluster, 1, function(x) all(table(x) >= minclus)))
    cat("HC snipping is finished!", "\n")
-   cat(paste(nrow(cluster), " unique partitions returned", sep=""), "\n")
+   cat(paste(nrow(cluster), " unique partitions are found", sep=""), "\n")
    result <- list(partitions = cluster, hc = hc, dat = X, minclus = minclus, dis = D, 
-   	                dis.m = dis.method, link.m = link.method)
+   	                id = idx, dis.m = dis.method, link.m = link.method)
    	     
  
  return(result)

@@ -47,11 +47,10 @@ Obulkasim,A. et al., (2013). "Semi-supervised adaptive-height snipping of the Hi
 
 \examples{
 data(BullingerLeukemia)
-em <- BullingerLeukemia[["em"]]
-st <- BullingerLeukemia[["surv.time"]]
-event <- BullingerLeukemia[["status"]]
-cl <- HCsnipper(em[, 1:60], min = 5)
-result <- apply(cl[["partitions"]], 1, function(x) surv_measure(x, st[1:60], event[1:60]))
+attach(BullingerLeukemia)
+cl <- HCsnipper(em[, 1:30], min = 5)
+cl <- cl$partitions[cl$id, ]
+result <- apply(cl, 1, function(x) surv_measure(x, surv.time[1:30], status[1:30]))
 
 }
 

@@ -48,14 +48,13 @@ Askar Obulkasim
 
 \examples{
 data(BullingerLeukemia)
-em <- BullingerLeukemia[["em"]]
-st <-  BullingerLeukemia[["surv.time"]]
-event <- BullingerLeukemia[["status"]]
-cl <- HCsnipper(em[, 1:60], min = 5)
-pred <- cluster_pred(X = em[, 1:100], partition = cl$partitions[1, ], surv.time = st[1:60],
-                     status = event[1:60], te.index = 61:100)
-Err <- RSF_eval(cl$partitions[1, ], st[1:60], event[1:60], pred, st[61:100], event[61:100])
-
+attach(BullingerLeukemia)
+cl <- HCsnipper(em[, 1:30], min = 5)
+cl <- cl$partitions[cl$id, ]
+pred <- cluster_pred(em[, 1:100], cl[1, ], surv.time[1:30],
+                     status[1:30], 31:100)
+Err <- RSF_eval(cl[1, ], surv.time[1:30], status[1:30], pred, 
+               surv.time[31:100], status[31:100])
 }
 
 

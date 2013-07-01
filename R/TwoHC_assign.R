@@ -11,7 +11,7 @@ function(X, index1, index2, new.X, dis.method = "cor", link.method = "ward", min
    res1 <- HCsnipper(X = X[, index1], dis.method = dis.method, link.method = link.method, minclus = minclus, maxmiss = maxmiss)
    dis.1 <- res1$dis
    H.1 <- res1$hc
-   cl.1 <- res1$partitions
+   cl.1 <- res1$partitions[res1$id, ]
    L1.1 <- apply(cl.1, 1, function(x) surv_measure(x, surv.time[index1] , status[index1], method1))
    L2.1 <- apply(cl.1, 1, function(x) measure(parti = x, dis = dis.1, type = method2))
    ord <- order(L1.1, decreasing = TRUE)
@@ -21,7 +21,7 @@ function(X, index1, index2, new.X, dis.method = "cor", link.method = "ward", min
    res2 <- HCsnipper(X = X[, index2], dis.method = dis.method, link.method = link.method, minclus = minclus, maxmiss = maxmiss)
    dis.2 <- res2$dis
    H.2 <- res2$hc
-   cl.2 <- res2$partitions
+   cl.2 <- res2$partitions[res2$id, ]
    L1.2 <- apply(cl.2, 1, function(x) surv_measure(x, surv.time[index2] , status[index2], method1))
    L2.2 <- apply(cl.2, 1, function(x) measure(parti = x, dis = dis.2, type = method2))
    ord <- order(L1.2, decreasing = TRUE)
@@ -41,10 +41,10 @@ function(X, index1, index2, new.X, dis.method = "cor", link.method = "ward", min
    m1 <- data.frame(L1.1, L2.1)
    m2 <- data.frame(L1.2, L2.2)
    colnames(m1) <- colnames(m2) <- c(method1, method2)
-   result <- list(hc1 = H.1, hc2 = H.2, partitions.hc1 = cl.1, partitions.hc2 = cl.2, best.hc1 = best1, best.hc2 = best2, 
+   result <- list(hc1 = H.1, hc2 = H.2, partitions.hc1 = res1$partitions, partitions.hc2 = res2$partitions, best.hc1 = best1, best.hc2 = best2, 
                   score.hc1 = m1, score.hc2 = m2, Assign = res, surv.time = surv.time, status = status,
-                  index1 = index1, index2 = index2, new.X = new.X, X = X, method1 = method1, method2 = method2,
-                  minclus = minclus)
+                  index1 = index1, index2 = index2, new.X = new.X, X = X, method1 = method1, method2 = method2, 
+                  minclus = minclus, id1 = res1$id, id2 = res2$id)
    
  return(result)
          

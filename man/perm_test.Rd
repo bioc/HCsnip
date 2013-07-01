@@ -74,16 +74,15 @@ Askar Obulkasim
 
 \examples{
 data(BullingerLeukemia)
-em <- BullingerLeukemia[["em"]]
-st <- BullingerLeukemia[["surv.time"]]
-event <- BullingerLeukemia[["status"]]
-cl <- HCsnipper(em[, 1:60], min = 5)
-m <- apply(cl[["partitions"]], 1, function(x) measure(parti = x, dis = 1-cor(em[, 1:60]))) 
-s <- apply(cl[["partitions"]], 1, function(x) surv_measure(x, st[1:60], event[1:60]))
-result <- perm_test(cl[["partitions"]], st[1:60], event[1:60], score1 = s, score2 = m, nperm = 10) 
+attach(BullingerLeukemia)
+cl <- HCsnipper(em[, 1:30], min = 5)
+cl <- cl$partitions[cl$id, ]
+m <- apply(cl, 1, function(x) measure(parti = x, dis = 1-cor(em[, 1:30]))) 
+s <- apply(cl, 1, function(x) surv_measure(x, surv.time[1:30], status[1:30]))
+result <- perm_test(cl, surv.time[1:30], status[1:30], score1 = s, score2 = m, nperm = 10) 
 
 ### Visualize cluster differences in terms of Entropy.
-H <- EnvioPlot(X = em[, 1:60], parti = result[["best"]])
+H <- EnvioPlot(X = em[, 1:30], parti = result$best)
 } 
 
 

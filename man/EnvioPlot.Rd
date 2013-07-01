@@ -43,7 +43,7 @@ Adler,D. (2005). vioplot: A violin plot is a combination of a box plot and a ker
 
 \examples{
 data(BullingerLeukemia)
-em <- BullingerLeukemia[["em"]]
+attach(BullingerLeukemia)
 cl <- cutree(hclust(as.dist(1 - cor(em[, 1:60])), method = "ward"), k = 2)
 result <- EnvioPlot(X = em[, 1:60], parti = cl)
 }

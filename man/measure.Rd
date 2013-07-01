@@ -56,9 +56,10 @@ Obulkasim,A. et al., (2013). "Semi-supervised adaptive-height snipping of the Hi
 \examples{
 
 data(BullingerLeukemia)
-em <- BullingerLeukemia[["em"]]
-cl <- HCsnipper(em[, 1:60], minclus = 5)
-m <- apply(cl[["partitions"]], 1, function(x) measure(parti = x, dis = 1 - cor(em[, 1:60]))) 
+attach(BullingerLeukemia)
+cl <- HCsnipper(em[, 1:30], minclus = 5)
+cl <- cl$partitions[cl$id, ]
+m <- apply(cl, 1, function(x) measure(parti = x, dis = 1 - cor(em[, 1:30]))) 
 
 }
 

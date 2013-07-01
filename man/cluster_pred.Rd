@@ -47,7 +47,7 @@ Before selecting either one of the options, we recommend user to check the corre
 
 }
 
-\value{If \emph{plot.it} is FALSE, function returns a vector of cluster labels of the test set. If TRUE and follow-up data of the test set are given, function returns a list object contains following components:
+\value{If \emph{plot.it} is FALSE, function returns a vector of predicted cluster labels of the test set. If TRUE and follow-up data of the test set are given, function returns a list object contains following components:
    \item{St}{a data frame with following five columns:
          \tabular{rl}{
            [,1] \tab the unique survival times found in the test set's follow-up.\cr
@@ -81,12 +81,11 @@ Troyanskaya,O. et al., (2001). "Missing value estimation methods for DNA microar
 
 \examples{
 data(BullingerLeukemia)
-em <- BullingerLeukemia[["em"]]
-st <-  BullingerLeukemia[["surv.time"]]
-event <- BullingerLeukemia[["status"]]
-cl <- HCsnipper(em[, 1:60], min = 5)
-result <- cluster_pred(X = em[, 1:100], partition = cl$partitions[1, ], surv.time = st[1:60], 
-                       status = event[1:60], te.index = 61:100)
+attach(BullingerLeukemia)
+cl <- HCsnipper(em[, 1:30], min = 5)
+cl <- cl$partitions[cl$id, ]
+result <- cluster_pred(X = em[, 1:50], partition = cl[1, ], surv.time = surv.time[1:30], 
+                       status = status[1:30], te.index = 31:50)
 names(result)
 
 }

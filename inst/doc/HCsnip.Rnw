@@ -41,7 +41,7 @@
 \\
 { P.O. Box 7075, 1007 MB Amsterdam, The Netherlands}
 \\
-{ {\tt askar.wubulikasimu@vumc.nl}}
+{ {\tt askar703@gmail.com}}
 }
 \date{}
 
@@ -116,35 +116,26 @@ The code above loads a list object {\tt TcgaGBM} with following components
 
 \section{{\tt HCsnipper}: extract complete set of partitions from the HC tree \\ by snipping at variable heights}
 
-For a given HC tree, this function snips it at all possible places to extract complete set of partitions (clusterings) (each one composed of non-overlapping clusters) under the following conditions: 
-
-\begin{itemize}
-	\item singleton is not allowed.
-	\item snipping places are chosen so that only the samples which are neighbours in the leaf node ordering are allowed to form a cluster.
-\end{itemize}
-
-The latter constraint guarantees that sniping does not change the HC tree structure considerably. For example, samples located in far left in the HC tree will not be joined with samples located in far right. The number of partitions return by function depends not only on the \emph{minclus} argument, but also the shape of the HC tree. The number of partitions can be extracted is large for a balanced HC tree than skewed one.
+For a given HC tree, this function snips it at all possible places to extract the complete set of partitions (clusterings) (each one is composed of non-overlapping clusters), which includes parititions in which minimum clusters size smaller than the user specified threshold, under the condition that snipping places are chosen so that only the samples which are neighbours in the leaf node ordering are allowed to form a cluster. This constraint guarantees that sniping does not change the HC tree structure considerably. For example, samples located in far left in the HC tree will not be joined with samples located in far right. Output of this function includs a term ''id'' which includes the indices the paritions that satified the threshold. The number of partitions return by function depends on the shape of given HC tree. A balanced HC tree results more partitions than the skewed one.
 
 <<chunk3, eval=TRUE, echo=TRUE, results=hide>>=
 data(BullingerLeukemia)
-em <- BullingerLeukemia[["em"]]
-cl <- HCsnipper(em[, 1:60], minclus = 5)
+attach(BullingerLeukemia)
+cl <- HCsnipper(em[, 1:30], minclus = 5)
+cl <- cl$partitions[cl$id, ]
 ## To check returned partitions size
-table(apply(cl[["partitions"]], 1, function(x) length(unique(x))))
+table(apply(cl, 1, function(x) length(unique(x))))
 @
 
   
        
 
 \section{{\tt measure}: overall partition (clustering) quality assessment using molecular data}
-This function evaluates clusters in a given partition by user defined evaluation criteria. Numerous cluster quality measuring criteria have been proposed. In this package, we implemented few well known ones. Except for the 'c.index' and the in group proportion 'IGP', rest of the criteria come from the function \emph{cluster.stats} in \emph{fpc} package. For latter one, please check the returned arguments of the \emph{cluster.stats} function before you decide which criteria to choose. Note that, the value returned by different criteria has different meaning. For example, the larger the Goodman and Kruskal index (g2) the better. For the index G3 (g3), the smaller the better.
+This function evaluates clusters in a given partition by user defined evaluation criteria. Numerous cluster quality measuring criteria have been proposed. In this package, we implemented few well known ones. Except for the 'c.index' and the in-group-proportion 'IGP', rest of the criteria come from the function \emph{cluster.stats} in \emph{fpc} package. For latter one, please check the returned arguments of the \emph{cluster.stats} function before you decide which criteria to choose. Note that, the value returned by different criteria has different meaning. For example, the larger the Goodman and Kruskal index (g2) the better. As to G3 (g3), the smaller the better.
 
 <<chunk4, eval=TRUE, echo=TRUE, results=hide>>=
-data(BullingerLeukemia)
-em <- BullingerLeukemia[["em"]]
-cl <- HCsnipper(em[, 1:60], minclus = 5)
-m <- apply(cl[["partitions"]], 1, function(x) measure(parti = x, 
-                        dis = 1 - cor(em[, 1:60]))) 
+a <- apply(cl, 1, function(x) measure(parti = x, 
+                        dis = 1 - cor(em[, 1:30]))) 
 @
 
 
@@ -153,13 +144,8 @@ m <- apply(cl[["partitions"]], 1, function(x) measure(parti = x,
 This function evaluates a given partition using either \emph{AIC} or \emph{BIC} criteria. In both settings, It fits a Cox model using follow-up data as response and cluster labels in the partition as covariate.  The likelihood from the fitted model further used to calculate the modified \emph{AIC} (Liang and Zou, 2008) or \emph{BIC} (Volinsky and Raftery, 2000). See references for more details. Note that, for convenience in later usage, returned value is multiplied by -1 so that large value denotes good quality partition.
 
 <<chunk5, eval=TRUE, echo=TRUE, results=hide>>=
-data(BullingerLeukemia)
-em <- BullingerLeukemia[["em"]]
-st <- BullingerLeukemia[["surv.time"]]
-event <- BullingerLeukemia[["status"]]
-cl <- HCsnipper(em[, 1:60], min = 5)
-bic <- apply(cl[["partitions"]], 1, function(x) surv_measure(x, 
-                     st[1:60], event[1:60]))
+b <- apply(cl, 1, function(x) surv_measure(x, 
+                     surv.time[1:30], status[1:30]))
 @
 
 
@@ -184,14 +170,7 @@ Here, $p$ satisfies a crucial property of $p$-values: it is uniformly distribute
 
 
 <<chunk6, eval=TRUE, echo=TRUE, results=hide>>=
-data(BullingerLeukemia)
-em <- BullingerLeukemia[["em"]]
-st <- BullingerLeukemia[["surv.time"]]
-event <- BullingerLeukemia[["status"]]
-cl <- HCsnipper(em[, 1:60], min = 5)
-m <- apply(cl[["partitions"]], 1, function(x) measure(parti = x, dis = 1-cor(em[, 1:60]))) 
-s <- apply(cl[["partitions"]], 1, function(x) surv_measure(x, st[1:60], event[1:60]))
-result <- perm_test(cl[["partitions"]], st[1:60], event[1:60], score1 = s, score2 = m, 
+result <- perm_test(cl, surv.time[1:30], status[1:30], score1 = a, score2 = b, 
                        nperm = 10) 
 @
 
@@ -204,11 +183,11 @@ This function first calculates the entropy for each sample in the given partitio
 \begin{center} 
 <<chunk7, fig=TRUE, eval=TRUE, echo=TRUE, results=hide>>=
 data(TcgaGBM)
-em <- TcgaGBM[["em"]]
-drugs <- TcgaGBM[["drugs"]]
-cl <- rep(1, ncol(em))
-cl[drugs == "Temodar"] <- 2
-H <- EnvioPlot(X = em, parti = cl, names = c("Avastin", "Temodar"), 
+em <- TcgaGBM$em
+drugs <- TcgaGBM$drug
+gr <- rep(1, ncol(em))
+gr[drugs == "Temodar"] <- 2
+H <- EnvioPlot(X = em, parti = gr, names = c("Avastin", "Temodar"), 
              col = c("blue", "red"))
 @
 \end{center}
@@ -221,15 +200,12 @@ Second option is to use the Harrel's concordance index (Harrel \textit{et al}., 
 
 <<chunk8, fig=FALSE, eval=TRUE, echo=TRUE, results=hide>>=
 data(BullingerLeukemia)
-em <- BullingerLeukemia[["em"]]
-st <-  BullingerLeukemia[["surv.time"]]
-event <- BullingerLeukemia[["status"]]
-cl <- HCsnipper(em[, 1:60], min = 5)
+attach(BullingerLeukemia)
 par(mfrow = c(1, 2))
-result <- cluster_pred(X = em[, 1:100], partition = cl[["partitions"]][1, ], 
-              surv.time = st[1:60], status = event[1:60], te.index = 61:100,
-              te.surv.time = st[61:100], te.status = event[61:100], plot.it =TRUE)
-H <- EnvioPlot(X = em[,61:100], parti = result[["St"]][, 2])              
+pred <- cluster_pred(X = em[, 1:60], partition = result$best, 
+              surv.time = surv.time[1:30], status = status[1:30], te.index = 31:60,
+              te.surv.time = surv.time[31:60], te.status = status[31:60], plot.it = TRUE)
+H <- EnvioPlot(X = em[, 31:60], parti = pred[["St"]][, 2])              
 @
 
 \begin{figure}[h]
@@ -243,18 +219,15 @@ H <- EnvioPlot(X = em[,61:100], parti = result[["St"]][, 2])
 
 
 \section{{\tt RSF\_eval}: evaluate the clustering on the new set by the Random Survival Forest}
-This function constructs survival forest (shwaran \textit{et~al}., 2008) using training sample's follow-up as response and cluster labels as covariates. Constructed forest is used to calculate cumulative hazard function (CHF) for each sample in the new set based on its cluster label. CHFs are compared with new sample's actual survival time to calculate the error rate. Error rate is 1 - \emph{C-index} (Harrel's concordance index, 1982) . Error rates are between 0 and 1, with 0.5 representing the benchmark value of a procedure based random guessing. A value of 0 is perfect.
+This function constructs survival forest (shwaran \textit{et~al}., 2008) using training sample's follow-up as response and cluster labels as covariates. Constructed forest is used to calculate cumulative hazard function (CHF) for each sample in the new set based on its cluster label. CHFs are compared with new sample's actual survival time to calculate the error rate. Error rate is 1 - \emph{C-index} (Harrel's concordance index, 1982). Error rates are between 0 and 1, 1 being the perfect match.
 
 <<chunk9, eval=TRUE, echo=TRUE, results=hide>>=
-data(BullingerLeukemia)
-em <- BullingerLeukemia[["em"]]
-st <-  BullingerLeukemia[["surv.time"]]
-event <- BullingerLeukemia[["status"]]
-cl <- HCsnipper(em[, 1:60], min=5)
-pred <- cluster_pred(X = em[, 1:100], partition = cl[["partitions"]][1, ], 
-              surv.time = st[1:60], status = event[1:60], te.index = 61:100)
-Err <- RSF_eval(cl[["partitions"]][1, ], st[1:60], 
-              event[1:60], pred, st[61:100], event[61:100])
+cl <- HCsnipper(em[, 1:40], minclus = 4)
+cl <- cl$partitions[cl$id, ]
+pred <- cluster_pred(X = em[, 1:60], partition = cl[6, ], 
+              surv.time = surv.time[1:40], status = status[1:40], te.index = 41:60)
+Err <- RSF_eval(cl[1, ], surv.time[1:40], status[1:40], 
+               pred, surv.time[41:60], status[41:60])
 @
 
 
@@ -266,15 +239,13 @@ This function works as follows: first, two independent HC trees will be derived 
 
 <<chunk10, eval=FALSE, echo=TRUE, results=hide>>=
 data(TcgaGBM)
-id1 <- which(TcgaGBM[["drugs"]] == "Avastin")
-id2 <- which(TcgaGBM[["drugs"]] == "Temodar") 
-em <- TcgaGBM[["em"]]
-st <-  TcgaGBM[["surv.time"]]
-event <- TcgaGBM[["status"]]
-result <- TwoHC_assign(X = em[ ,c(id1[1:50], id2[1:50])], index1 = 1:50, 
-                index2 = 51:100, new.X = em[, c(id1[51:60], id2[51:60])], 
-                minclus = 4, surv.time = st[c(id1[1:50], id2[1:50])], 
-                status = event[c(id1[1:50], id2[1:50])])  
+attach(TcgaGBM)
+id1 <- which(drugs == "Avastin")
+id2 <- which(drugs == "Temodar") 
+twoHC <- TwoHC_assign(X = em[ ,c(id1[1:30], id2[1:30])], index1 = 1:30, 
+                index2 = 31:60, new.X = em[, c(id1[31:60], id2[31:60])], 
+                minclus = 4, surv.time = surv.time[c(id1[1:30], id2[1:30])], 
+                status = status[c(id1[1:30], id2[1:30])])  
 @                     
                      
                  
@@ -294,16 +265,6 @@ $$T_{\text{obs}} = \frac{\frac{1}{n}\sum_{i=1}^n\log\left(rr^i_{\text{obs}}\righ
 
 
 <<chunk11, eval=FALSE, echo=TRUE, results=hide>>=
-data(TcgaGBM)
-id1 <- which(TcgaGBM[["drugs"]] == "Avastin")
-id2 <- which(TcgaGBM[["drugs"]] == "Temodar") 
-em <- TcgaGBM[["em"]]
-st <-  TcgaGBM[["surv.time"]]
-event <- TcgaGBM[["status"]]
-twoHC <- TwoHC_assign(X = em[ ,c(id1[1:50], id2[1:50])], index1 = 1:50, 
-                  index2 = 51:100, new.X = em[, c(id1[51:60], id2[51:60])], 
-                  minclus = 4, surv.time = st[c(id1[1:50], id2[1:50])], 
-                  status = event[c(id1[1:50], id2[1:50])])  
 result <- TwoHC_perm(twoHC, nperm = 100)
 @
 

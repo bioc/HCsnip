@@ -60,23 +60,21 @@ See also \code{\link{TwoHC_assign}}, \code{\link{cluster_pred}}
 
 \examples{
 data(TcgaGBM)
-id1 <- which(TcgaGBM[["drugs"]] == "Avastin")
-id2 <- which(TcgaGBM[["drugs"]] == "Temodar") 
-em <- TcgaGBM[["em"]]
-st <-  TcgaGBM[["surv.time"]]
-event <- TcgaGBM[["status"]]
+attach(TcgaGBM)
+id1 <- which(drugs == "Avastin")
+id2 <- which(drugs == "Temodar") 
 twoHC <- TwoHC_assign(X = em[ ,c(id1[1:50], id2[1:50])], index1 = 1:50, index2 = 51:100, 
                      new.X = em[, c(id1[51:60], id2[51:60])], minclus = 4,
-                     surv.time = st[c(id1[1:50], id2[1:50])], 
-                     status = event[c(id1[1:50], id2[1:50])])  
+                     surv.time = surv.time[c(id1[1:50], id2[1:50])], 
+                     status = status[c(id1[1:50], id2[1:50])])  
 result <- TwoHC_perm(twoHC, nperm = 100)
                    
 \dontrun{
 ### Examples with a larger number of permutations (not run).
 result <- TwoHC_perm(twoHC, nperm = 10000)
 par(mfrow = c(1, 2))
-plot(density(result[["Ranks"]]), xlab = "Ranks")
-plot(density(result[["RiskRatios"]]), xlab = "Observed relative risk-ratios")
+plot(density(result$Ranks), xlab = "Ranks")
+plot(density(result$RiskRatios), xlab = "Observed relative risk-ratios")
 }
 }
 

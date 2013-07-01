@@ -65,7 +65,8 @@ This function is designed for this problem. it works as follows: first, two inde
   \item{method1}{The same as input}
   \item{method2}{The same as input}
   \item{minclus}{The same as input}
-   
+  \item{id1}{indices of the partitions obtained from the \emph{hc1} in which minimum cluster size is equal or larger than \emph{minclus}.} 
+  \item{id2}{indices of the partitions obtained from the \emph{hc2} in which minimum cluster size is equal or larger than \emph{minclus}.} 
 }
 
 \references{
@@ -87,13 +88,11 @@ See also \code{\link{TwoHC_perm}}, \code{\link{cluster_pred}}
 
 \examples{
 data(TcgaGBM)
-id1 <- which(TcgaGBM[["drugs"]] == "Avastin")
-id2 <- which(TcgaGBM[["drugs"]] == "Temodar") 
-em <- TcgaGBM[["em"]]
-st <-  TcgaGBM[["surv.time"]]
-event <- TcgaGBM[["status"]]
-result <- TwoHC_assign(X = em[ ,c(id1[1:50], id2[1:50])], index1 = 1:50, index2 = 51:100, 
-                      new.X = em[, c(id1[51:60], id2[51:60])], minclus = 4,
-                     surv.time = st[c(id1[1:50], id2[1:50])], 
-                     status = event[c(id1[1:50], id2[1:50])])  
+attach(TcgaGBM)
+id1 <- which(drugs == "Avastin")
+id2 <- which(drugs == "Temodar") 
+result <- TwoHC_assign(X = em[ ,c(id1[1:30], id2[1:30])], index1 = 1:30, index2 = 31:60, 
+                      new.X = em[, c(id1[31:60], id2[31:60])], minclus = 4,
+                     surv.time = surv.time[c(id1[1:30], id2[1:30])], 
+                     status = status[c(id1[1:30], id2[1:30])])  
 }
