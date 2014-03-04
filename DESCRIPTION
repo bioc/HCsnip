@@ -2,13 +2,20 @@ Package: HCsnip
 Type: Package
 Title: Semi-supervised adaptive-height snipping of the Hierarchical
         Clustering tree
-Version: 1.3.1
+Version: 1.3.2
 Author: Askar Obulkasim
 Maintainer: Askar Obulkasim <askar703@gmail.com>
-Description: Decompose given hierarchical clustering tree into non-overlapping clusters in a semi-supervised way by using available patients follow-up information as guidance. Contains functions for snipping HC tree, various cluster quality evaluation criteria, assigning new patients to one of the two given HC trees, testing the significance of clusters with permutation argument and clusters visualization using sample's molecular entropy.
+Description: Decompose given hierarchical clustering tree into
+        non-overlapping clusters in a semi-supervised way by using
+        available patients follow-up information as guidance. Contains
+        functions for snipping HC tree, various cluster quality
+        evaluation criteria, assigning new patients to one of the two
+        given HC trees, testing the significance of clusters with
+        permutation argument and clusters visualization using sample's
+        molecular entropy.
 License: GPL (>= 2)
 LazyLoad: yes
 Depends: R(>= 2.10.0), survival, coin, fpc, clusterRepro, impute,
         randomForestSRC, sm, sigaR, Biobase
-biocViews: Microarray, Bioinformatics, aCGH, GeneExpression, Clustering
 Packaged: 2013-04-02 18:35:15 UTC; Askar_Obulkasim
+biocViews: Microarray, aCGH, GeneExpression, Clustering
