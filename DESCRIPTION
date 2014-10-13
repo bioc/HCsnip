@@ -2,7 +2,7 @@ Package: HCsnip
 Type: Package
 Title: Semi-supervised adaptive-height snipping of the Hierarchical
         Clustering tree
-Version: 1.6.0
+Version: 1.7.0
 Author: Askar Obulkasim
 Maintainer: Askar Obulkasim <askar703@gmail.com>
 Description: Decompose given hierarchical clustering tree into
