@@ -19,3 +19,4 @@ Depends: R(>= 2.10.0), survival, coin, fpc, clusterRepro, impute,
         randomForestSRC, sm, sigaR, Biobase
 Packaged: 2013-04-02 18:35:15 UTC; Askar_Obulkasim
 biocViews: Microarray, aCGH, GeneExpression, Clustering
+PackageStatus: Deprecated
